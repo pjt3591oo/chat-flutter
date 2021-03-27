@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -20,9 +22,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Chat App"),
-      ),
+      appBar: Platform.isIOS
+        ? CupertinoNavigationBar(middle: Text("Chat App"))
+        : AppBar(
+            title: Text("Chat App"),
+        ),
       body: Column(
         children: <Widget> [
           Expanded(
@@ -44,13 +48,20 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 SizedBox(width: 8),
-                FlatButton(
-                  child: Text("Send"),
-                  onPressed: () {
-                    _handleSubmitted(_textEditingController.text);
-                  },
-                  color: Colors.amberAccent
-                )
+                Platform.isIOS
+                  ? CupertinoButton(
+                      child: Icon(Icons.send), 
+                      onPressed: () {
+                        _handleSubmitted(_textEditingController.text);
+                      }
+                    )
+                  :FlatButton(
+                      child: Text("Send"),
+                      onPressed: () {
+                        _handleSubmitted(_textEditingController.text);
+                      },
+                      color: Colors.amberAccent
+                    )
               ]
             ),
           )
@@ -93,7 +104,7 @@ class _HomePageState extends State<HomePage> {
 
   void _handleSubmitted(String text) {
     if (text.length == 0) return;
-    
+
     _textEditingController.clear();
     String dt = DateFormat.jm().format(DateTime.now());
     // bool isShowDt = _chats.length != 0 && _chats[0].dt == dt ? false : true;
