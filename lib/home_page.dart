@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   TextEditingController _textEditingController = TextEditingController();
+  GlobalKey<AnimatedListState> _animListKey = GlobalKey<AnimatedListState>();
   List<Chat> _chats = [];
   String _prevId = "멍개";
 
@@ -25,9 +26,11 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: <Widget> [
           Expanded(
-            child: ListView.builder(itemBuilder: (context, index) {
-              return getChat(index);
-            }, itemCount: _chats.length, reverse: true,),
+            child: AnimatedList(
+              key: _animListKey,
+              itemBuilder: getChat, 
+              reverse: true,
+            ),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 10),
@@ -56,21 +59,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget getChat(int index) {
+  Widget getChat(context, index, animation) {
     Chat chat = _chats[index];
     bool isShowDt = true;
     String id = chat.id;
     String text = chat.text;
     String dt = chat.dt;
 
-
     if (index > 0 &&  _chats[index-1].id == chat.id && _chats[index-1].dt == chat.dt) {
       isShowDt = false;
     }
     _logger.d('index: $index, isShowDt: $isShowDt, id: $id, text: $text, dt: $dt');
-    
+    _logger.d('animation: $animation');
+
     if(chat.isMe) {
       return ChatMessaageSend(
+        animation: animation,
         text: chat.text,
         id: chat.id,
         dt: chat.dt,
@@ -78,6 +82,7 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       return ChatMessaageReceive(
+        animation: animation,
         text: chat.text,
         id: chat.id,
         dt: chat.dt,
@@ -87,6 +92,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleSubmitted(String text) {
+    if (text.length == 0) return;
+    
     _textEditingController.clear();
     String dt = DateFormat.jm().format(DateTime.now());
     // bool isShowDt = _chats.length != 0 && _chats[0].dt == dt ? false : true;
@@ -96,9 +103,11 @@ class _HomePageState extends State<HomePage> {
 
     Chat chat = Chat(id: id, text: text, dt: dt, isShowDt: true, isMe: isMe) ;
 
-    setState(() {
-      _chats.insert(0, chat);
-    });
+    _chats.insert(0, chat);
+    // setState(() {
+    //   _chats.insert(0, chat);
+    // });
+    _animListKey.currentState.insertItem(0);
   }
   
 }
