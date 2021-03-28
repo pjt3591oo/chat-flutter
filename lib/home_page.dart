@@ -55,12 +55,14 @@ class _HomePageState extends State<HomePage> {
                         _handleSubmitted(_textEditingController.text);
                       }
                     )
-                  :FlatButton(
+                  :TextButton(
                       child: Text("Send"),
                       onPressed: () {
                         _handleSubmitted(_textEditingController.text);
                       },
-                      color: Colors.amberAccent
+                      style: TextButton.styleFrom(
+                        primary: Colors.amberAccent,
+                      )
                     )
               ]
             ),
